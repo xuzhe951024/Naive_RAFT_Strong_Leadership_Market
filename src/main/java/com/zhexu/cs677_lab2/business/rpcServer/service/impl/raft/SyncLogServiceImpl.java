@@ -14,6 +14,7 @@ import com.zhexu.cs677_lab2.business.rpcServer.service.raft.SyncLogService;
 import com.zhexu.cs677_lab2.constants.ResponseCode;
 import com.zhexu.cs677_lab2.utils.SpringContextUtils;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.LinkedList;
 
@@ -64,7 +65,8 @@ public class SyncLogServiceImpl implements SyncLogService {
             log.info(peer.getSelfAddress().getDomain() + " is not leader any more!");
         }
 
-        new Thread(() -> collectAndSendSyncData(capture)).start();
+        ThreadPoolTaskExecutor threadPoolTaskExecutor = SpringContextUtils.getBean(ThreadPoolTaskExecutor.class);
+        threadPoolTaskExecutor.submit(new Thread(() -> collectAndSendSyncData(capture)));
 
         return response;
     }

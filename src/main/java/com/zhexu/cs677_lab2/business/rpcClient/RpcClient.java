@@ -23,7 +23,7 @@ import java.net.UnknownHostException;
 import java.util.UUID;
 
 /**
- * RPC客户端, 使用Socket与服务端通信
+ * RPC client, use socket to communicate with server
  *
  */
 public class RpcClient {
@@ -65,7 +65,7 @@ public class RpcClient {
     }
 
     /**
-     * 运行main, 开启客户端
+     * Test
      *
      * @param args
      */

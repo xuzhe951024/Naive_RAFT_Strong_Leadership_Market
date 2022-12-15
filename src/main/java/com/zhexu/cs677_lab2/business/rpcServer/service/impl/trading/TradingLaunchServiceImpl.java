@@ -16,7 +16,9 @@ import com.zhexu.cs677_lab2.business.rpcClient.proxy.RPCInvocationHandler;
 import com.zhexu.cs677_lab2.business.rpcServer.service.trading.TradingLaunchService;
 import com.zhexu.cs677_lab2.business.rpcServer.service.trading.TradingRespService;
 import com.zhexu.cs677_lab2.constants.ResponseCode;
+import com.zhexu.cs677_lab2.utils.SpringContextUtils;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.*;
 
@@ -50,13 +52,14 @@ public class TradingLaunchServiceImpl implements TradingLaunchService {
             return response;
         }
 
-        new Thread(() -> {
+        ThreadPoolTaskExecutor threadPoolTaskExecutor = SpringContextUtils.getBean(ThreadPoolTaskExecutor.class);
+        threadPoolTaskExecutor.submit(new Thread(() -> {
             try {
                 startTrading(transaction);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        }).start();
+        }));
 
         return response;
     }

@@ -20,6 +20,7 @@ import com.zhexu.cs677_lab2.business.rpcServer.service.raft.EventApplyService;
 import com.zhexu.cs677_lab2.constants.ResponseCode;
 import com.zhexu.cs677_lab2.utils.SpringContextUtils;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedList;
@@ -48,9 +49,12 @@ public class EventApplyServiceImpl extends BasicImpl implements EventApplyServic
             return response;
         }
 
-        new Thread(() -> {
+        ThreadPoolTaskExecutor threadPoolTaskExecutor = SpringContextUtils.getBean(ThreadPoolTaskExecutor.class);
+
+        threadPoolTaskExecutor.submit(new Thread(() -> {
             peer.putMessageBroadCast(logId);
-        }).start();
+        }));
+
        return response;
     }
 
@@ -82,13 +86,15 @@ public class EventApplyServiceImpl extends BasicImpl implements EventApplyServic
         LogEventHandlerService logEventHandlerService = new LogEventHandlerServiceImpl();
         logEventHandlerService.extractHandlerAndRun(logList);
 
-        new Thread(() -> {
+        ThreadPoolTaskExecutor threadPoolTaskExecutor = SpringContextUtils.getBean(ThreadPoolTaskExecutor.class);
+
+        threadPoolTaskExecutor.submit(new Thread(() -> {
             try {
                 saveLogAndSendResponse(logItem);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        }).start();
+        }));
 
         return response;
     }
@@ -130,7 +136,10 @@ public class EventApplyServiceImpl extends BasicImpl implements EventApplyServic
                 RaftElection election = objectMapper.readValue(logItem.getEventJSONString(), RaftElection.class);
                 peer.setLeaderID(election.getNewLeader());
             }
-            new Thread(() -> startSyncLog()).start();
+
+            ThreadPoolTaskExecutor threadPoolTaskExecutor = SpringContextUtils.getBean(ThreadPoolTaskExecutor.class);
+            threadPoolTaskExecutor.submit(new Thread(() -> startSyncLog()));
+
             log.info("Found unupdated log of:\n" +
                     peer.getRaftBase().toString() +
                     "\n from:\n" +

@@ -17,13 +17,16 @@ import com.zhexu.cs677_lab2.business.rpcServer.RpcServer;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import static com.zhexu.cs677_lab2.constants.Consts.*;
 
@@ -37,6 +40,10 @@ import static com.zhexu.cs677_lab2.constants.Consts.*;
 @Log4j2
 @Order(value = 1)
 public class RunBeforeStart implements CommandLineRunner {
+
+    @Autowired
+    ThreadPoolTaskExecutor threadPoolTaskExecutor;
+
     /**
      * @param args
      * @throws Exception
@@ -45,7 +52,15 @@ public class RunBeforeStart implements CommandLineRunner {
     public void run(String... args) {
         SingletonFactory.setRpcBufferSize(Integer.parseInt(args[TWO]));
         Role role = SingletonFactory.getRole();
-        Thread rpcServer = new Thread(() -> RpcServer.openServer(role.getSelfAddress().getPort()));
-        rpcServer.start();
+        RpcServer rpcServer = new RpcServer();
+        log.debug("Thread pool size: "+
+                threadPoolTaskExecutor.getPoolSize() +
+                " Thread pool maxSize: " +
+                threadPoolTaskExecutor.getMaxPoolSize() +
+                " Thread queue size: "+
+                threadPoolTaskExecutor.getQueueSize());
+        threadPoolTaskExecutor.submit(new Thread(() -> {
+            rpcServer.openServer(role.getSelfAddress().getPort());
+        }));
     }
 }

@@ -8,7 +8,9 @@ import com.zhexu.cs677_lab2.business.logEventHandler.Impl.LogEventHandlerService
 import com.zhexu.cs677_lab2.business.logEventHandler.LogEventHandlerService;
 import com.zhexu.cs677_lab2.business.rpcServer.service.raft.ReceiveSyncDataService;
 import com.zhexu.cs677_lab2.constants.ResponseCode;
+import com.zhexu.cs677_lab2.utils.SpringContextUtils;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.List;
 
@@ -36,7 +38,8 @@ public class ReceiveSyncDataServiceImpl implements ReceiveSyncDataService {
             return response;
         }
 
-        new Thread(() -> applySyncDataLocally(raftLogItemList.getRaftLogItemList())).start();
+        ThreadPoolTaskExecutor threadPoolTaskExecutor = SpringContextUtils.getBean(ThreadPoolTaskExecutor.class);
+        threadPoolTaskExecutor.submit(new Thread(() -> applySyncDataLocally(raftLogItemList.getRaftLogItemList())));
 
         return response;
     }

@@ -14,7 +14,9 @@ import com.zhexu.cs677_lab2.business.raft.EventApplyInitiateService;
 import com.zhexu.cs677_lab2.business.rpcClient.proxy.ProxyFactory;
 import com.zhexu.cs677_lab2.business.rpcClient.proxy.RPCInvocationHandler;
 import com.zhexu.cs677_lab2.business.rpcServer.service.raft.ElectionService;
+import com.zhexu.cs677_lab2.utils.SpringContextUtils;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import static com.zhexu.cs677_lab2.constants.Consts.ENTER;
@@ -111,14 +113,15 @@ public class ElectionInitialzeServiceImpl implements ElectionInitialzeService {
             election.setTermAndIndex(peer.getRaftBase());
             election.setNewLeader(peer.getId());
             election.setVoteMap(peer.getVoteCollector());
+            ThreadPoolTaskExecutor threadPoolTaskExecutor = SpringContextUtils.getBean(ThreadPoolTaskExecutor.class);
 
-            new Thread(() -> {
+            threadPoolTaskExecutor.submit(new Thread(() -> {
                 try {
                     broadCastNewLeader(election);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-            }).start();
+            }));
 
 
             peer.reSetVoteCollector();

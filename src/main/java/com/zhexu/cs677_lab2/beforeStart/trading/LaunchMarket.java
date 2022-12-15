@@ -69,7 +69,7 @@ public class LaunchMarket implements CommandLineRunner {
             }
         };
 
-        tradingTimer.schedule(sendHeartPulseTask, sleepBeforeStart, 1000);
+        tradingTimer.schedule(sendHeartPulseTask, sleepBeforeStart, 10);
     }
 
     private Boolean startBusiness(){

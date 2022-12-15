@@ -14,6 +14,7 @@ import com.zhexu.cs677_lab2.constants.ResponseCode;
 import com.zhexu.cs677_lab2.utils.SpringContextUtils;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import static com.zhexu.cs677_lab2.constants.Consts.ENTER;
@@ -89,7 +90,10 @@ public class RaftPulseServiceImpl extends BasicImpl implements RaftPulseService 
                     pulse.toString() +
                     "\n, starting sync log from leader:" +
                     peer.getNeighbourAdd(peer.getLeaderID()).getDomain());
-            new Thread(() -> startSyncLog()).start();
+
+            ThreadPoolTaskExecutor threadPoolTaskExecutor = SpringContextUtils.getBean(ThreadPoolTaskExecutor.class);
+            threadPoolTaskExecutor.submit(new Thread(() -> startSyncLog()));
+
         } else {
             if (peer.getRaftBase().atSameTermAndIndex(pulse)){
                 log.info("Leader: " +
@@ -105,7 +109,9 @@ public class RaftPulseServiceImpl extends BasicImpl implements RaftPulseService 
                     ", \nstarting election:");
 
             if (peer.isFollower()) {
-                new Thread(() -> {
+
+                ThreadPoolTaskExecutor threadPoolTaskExecutor = SpringContextUtils.getBean(ThreadPoolTaskExecutor.class);
+                threadPoolTaskExecutor.submit(new Thread(() -> {
                     try {
                         ElectionInitialzeService electionInitialzeService = SpringContextUtils.getBean(ElectionInitialzeService.class);
                         electionInitialzeService.startElection();
@@ -114,7 +120,8 @@ public class RaftPulseServiceImpl extends BasicImpl implements RaftPulseService 
                     } catch (JsonProcessingException e) {
                         throw new RuntimeException(e);
                     }
-                }).start();
+                }));
+
             }
         }
         return response;

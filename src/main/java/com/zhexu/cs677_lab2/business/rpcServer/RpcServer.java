@@ -8,12 +8,17 @@ package com.zhexu.cs677_lab2.business.rpcServer;
  **/
 
 
-
 import com.zhexu.cs677_lab2.api.bean.basic.NetModel;
 import com.zhexu.cs677_lab2.api.bean.basic.factories.SingletonFactory;
 import com.zhexu.cs677_lab2.utils.SerializeUtils;
+import com.zhexu.cs677_lab2.utils.SpringContextUtils;
 import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.stereotype.Component;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -25,20 +30,20 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Properties;
 
+import static com.zhexu.cs677_lab2.constants.Consts.IMPORTANT_LOG_WRAPPER;
 import static com.zhexu.cs677_lab2.constants.Consts.SERIALIZATION_BUF_SIZE;
 
 
 /**
  * Server
- *
+ * <p>
  * Using serverSocket offered by JDK
- *
+ * <p>
  * Server response result to client after receiving and processing of requests
- *
  */
 @Log4j2
+@Component
 public class RpcServer {
-
     /**
      * Profiles
      */
@@ -74,38 +79,36 @@ public class RpcServer {
 
     /**
      * Launch Server
-     *
      */
-    public static void openServer(Integer port) {
+
+    public void openServer(Integer port) {
         ServerSocket serverSocket = null;
-        Socket socket = null;
         try {
             serverSocket = new ServerSocket(port);
             System.out.println("Service on!");
+            ThreadPoolTaskExecutor threadPoolTaskExecutor = SpringContextUtils.getBean(ThreadPoolTaskExecutor.class);
 
             while (true) {
-                socket = serverSocket.accept();
-//               log.info(socket.getInetAddress() + "-rpc_connected!");
-
-                InputStream in = socket.getInputStream();
-                byte[] buf = new byte[SingletonFactory.getRpcBufferSize()];
-                in.read(buf);
-
-                byte[] formatData = formatData(buf);
-
-                OutputStream out = socket.getOutputStream();
-                out.write(formatData);
+                Socket socketHandler = serverSocket.accept();
+                log.info(socketHandler.getInetAddress() + "-rpc_connected!");
+                if (null == threadPoolTaskExecutor){
+                    log.warn(IMPORTANT_LOG_WRAPPER);
+                    log.warn("threadPoolTaskExecutor equals null!");
+                    log.warn(IMPORTANT_LOG_WRAPPER);
+                }
+                log.debug("Thread pool activated thread number: " + threadPoolTaskExecutor.getActiveCount());
+                threadPoolTaskExecutor.submit(new Thread(() -> {
+                    try {
+                        serviceHandler(socketHandler);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        throw new RuntimeException(e);
+                    }
+                }));
             }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if (socket != null) {
-                try {
-                    socket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
             if (serverSocket != null) {
                 try {
                     serverSocket.close();
@@ -116,26 +119,40 @@ public class RpcServer {
         }
     }
 
+    public void serviceHandler(Socket socket) throws IOException {
+        InputStream in = socket.getInputStream();
+        byte[] buf = new byte[SingletonFactory.getRpcBufferSize()];
+        in.read(buf);
+
+        byte[] formatData = formatData(buf);
+
+        OutputStream out = socket.getOutputStream();
+        out.write(formatData);
+    }
+
     /**
-     * 处理接收到的数据, 通过反序列化得到传递的NetModel!
-     *
-     * 然后得到接口名, 方法名, 参数, 参数类型;
-     *
-     * 最后通过JDK反射, 调用实现类的方法, 并将结果序列化后, 返回byte数组
+     * DeSerialize to NetModel
+     * <p>
+     * Get class name, method name and args
+     * <p>
+     * Reflect to get instance, then invoke and return byte array
      *
      * @param bs
      * @return
      */
-    private static byte[] formatData(byte[] bs) {
+    private byte[] formatData(byte[] bs) {
         try {
-            // 收到的NetModel二进制反序列化为NetModel模型, 然后通过反射调用服务实现类的方法
+            // The received NetModel binary is deserialized to a NetModel model, and then the methods of the service implementation class are called via reflection
             NetModel netModel = (NetModel) SerializeUtils.deserialize(bs);
+
+            log.debug("Received netModel: " + netModel.toString());
+
             String className = netModel.getClassName();
             String[] types = netModel.getTypes();
             Object[] args = netModel.getArgs();
 
             /*
-                1. 通过Map来做接口映射到实现类, 从map取出实现类方法
+                1. Map the interface to the implementation class via Map, and retrieve the implementation class methods from map
 
                 Map<String, String> map = new HashMap<>();
                 map.put("rpc.server.service.HelloService", "rpc.server.service.impl.HelloServiceImpl");
@@ -143,7 +160,7 @@ public class RpcServer {
              */
 
             /*
-                2. 放在配置文件下, 读取配置文件读取
+                2. Put under configuration file, read configuration file read
              */
             Class<?> clazz = Class.forName(getPropertyValue(className));
             Class<?>[] typeClazzs = null;

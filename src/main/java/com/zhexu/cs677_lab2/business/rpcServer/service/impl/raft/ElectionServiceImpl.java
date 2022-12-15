@@ -11,7 +11,9 @@ import com.zhexu.cs677_lab2.business.rpcServer.service.impl.raft.basic.BasicImpl
 import com.zhexu.cs677_lab2.business.rpcServer.service.raft.ElectionService;
 import com.zhexu.cs677_lab2.business.rpcServer.service.raft.VoteCollectingService;
 import com.zhexu.cs677_lab2.constants.ResponseCode;
+import com.zhexu.cs677_lab2.utils.SpringContextUtils;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 /**
@@ -73,7 +75,8 @@ public class ElectionServiceImpl extends BasicImpl implements ElectionService {
         if (peer.checkTermIfElectingAvailable(candidateVoteReq.getTerm(),
                 candidateVoteReq.getIndex())){
 
-            new Thread(() -> vote(candidateVoteReq, voterResp)).start();
+            ThreadPoolTaskExecutor threadPoolTaskExecutor = SpringContextUtils.getBean(ThreadPoolTaskExecutor.class);
+            threadPoolTaskExecutor.submit(new Thread(() -> vote(candidateVoteReq, voterResp)));
 
         }
 

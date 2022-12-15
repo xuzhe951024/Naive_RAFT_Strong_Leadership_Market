@@ -51,7 +51,14 @@ public class HeartBeatTimer implements CommandLineRunner {
         TimerTask sendHeartPulseTask = new TimerTask() {
             @Override
             public void run() {
+
                 PeerBase peer = SingletonFactory.getRole();
+                if (!peer.isLeader()){
+                    return;
+                }
+
+                log.info("Start to send heart pulse");
+
                 if(peer.isLeader()){
 
                     sendPulseService.sendPulseToFollowers();
@@ -63,6 +70,7 @@ public class HeartBeatTimer implements CommandLineRunner {
         TimerTask heartPulseTimeoutTask = new TimerTask() {
             @Override
             public void run() {
+                log.info("Start to check if leader is expired");
                 PeerBase peer = SingletonFactory.getRole();
 
                 if (peer.isSyncLogInProgress()){
