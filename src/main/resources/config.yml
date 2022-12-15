@@ -1,0 +1,22 @@
+# configs of the market
+peerNumber: 3
+sellerNumber: 3
+buyerNumber: 2
+port: 2121
+deployOnSingleComputer: true
+neighbourNum: 1
+maxJump: 5
+sleepBeforeStart: 5000
+numberOfTests: 1000
+
+
+maxmumStok: 100
+productNameList:
+  - Fish
+  - Salt
+  - Boar
+
+
+
+# config of runner
+rpcBuffSize: 10240

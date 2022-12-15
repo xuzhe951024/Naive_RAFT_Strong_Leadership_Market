@@ -1,0 +1,21 @@
+version: "3.3"
+services:
+  couchdb:
+    image: couchdb
+    ports:
+      - "5984:5984"
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=passWd
+    container_name: couchdb.service
+  cs677.lab2.peer2.example.com:
+    build: .
+    volumes:
+      - ./cs677.lab2.peer2.example.com:/app
+    working_dir:
+      /app
+    container_name: cs677.lab2.peer2.example.com
+    depends_on:
+      - couchdb
+    tty: true
+    command: [ "./wait-for.sh", "couchdb.service:5984", "--", "curl", "couchdb.service:5984" ]
