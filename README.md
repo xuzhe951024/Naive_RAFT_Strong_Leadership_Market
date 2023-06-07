@@ -8,29 +8,29 @@ Some of the crucial design is shown in the graph below.
 
 ### 1. Leader Election
 
-![Page7](/Users/zhexu/Downloads/Page7.png)
+![Page7](src/main/resources/static/Page7.png)
 
-![Page8](/Users/zhexu/Downloads/Page8.png)
+![Page8](src/main/resources/static/Page8.png)
 
-![Page9](/Users/zhexu/Downloads/Page9.png)
+![Page9](src/main/resources/static/Page9.png)
 
-![Page10](/Users/zhexu/Downloads/Page10.png)
+![Page10](src/main/resources/static/Page10.png)
 
 ### 2. Log Alignment
 
-![image-20221214073046466](/Users/zhexu/Library/Application Support/typora-user-images/image-20221214073046466.png)
+![image-20221214073046466](src/main/resources/static/image-20221214073046466.png)
 
 ### 3. An Example of How to Apply a Transaction
 
-![Page1](/Users/zhexu/Downloads/Page1.png)
+![Page1](src/main/resources/static/Page1.png)
 
-![Page2](/Users/zhexu/Downloads/Page2.png)
+![Page2](src/main/resources/static/Page2.png)
 
-![Page3](/Users/zhexu/Downloads/Page3.png)
+![Page3](src/main/resources/static/Page3.png)
 
-![Page4](/Users/zhexu/Downloads/Page4.png)
+![Page4](src/main/resources/static/Page4.png)
 
-![image-20221214073154180](/Users/zhexu/Library/Application Support/typora-user-images/image-20221214073154180.png)
+![image-20221214073154180](src/main/resources/static/image-20221214073154180.png)
 
 
 
@@ -40,9 +40,9 @@ Some of the crucial design is shown in the graph below.
 
 We deployed six peers (three sellers and three buyers, one CouchDB data server) in docker containers and launched 972 transactions (324 from each buyer). 
 
-![image-20221214074602814](/Users/zhexu/Library/Application Support/typora-user-images/image-20221214074602814.png)
+![image-20221214074602814](src/main/resources/static/image-20221214074602814.png)
 
-![image-20221214064425869](/Users/zhexu/Library/Application Support/typora-user-images/image-20221214064425869.png)
+![image-20221214064425869](src/main/resources/static/image-20221214064425869.png)
 
 
 
@@ -78,13 +78,13 @@ We deployed six peers (three sellers and three buyers, one CouchDB data server) 
 
 **Leader on remote Ubuntu:**
 
-![image-20221214075457866](/Users/zhexu/Library/Application Support/typora-user-images/image-20221214075457866.png)
+![image-20221214075457866](src/main/resources/static/image-20221214075457866.png)
 
 
 
 **Peers locally (including CouchDB server):**
 
-![image-20221214075700909](/Users/zhexu/Library/Application Support/typora-user-images/image-20221214075700909.png)
+![image-20221214075700909](src/main/resources/static/image-20221214075700909.png)
 
 
 
@@ -94,7 +94,7 @@ For the first several times of tests, the remote leader always times out and was
 
 **Network latency to remote server:**
 
-![image-20221214080805736](/Users/zhexu/Library/Application Support/typora-user-images/image-20221214080805736.png)
+![image-20221214080805736](src/main/resources/static/image-20221214080805736.png)
 
 Average network latency: 46.58 ms
 
