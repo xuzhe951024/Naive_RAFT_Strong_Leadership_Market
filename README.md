@@ -1,39 +1,5 @@
 # LAB 2 Report
 
-## Designing
-
-We implemented a naive RAFT consensus cluster in this lab. The leader of the cluster serves as the trader. All the members in the cluster maintain the same ledger but in a distributed database held by each one(different database in one CouchDB server). RAFT mechanism guarantees partition consistency and fault tolerance. We implemented all necessary functions including leader election, log synchronization, and service available checking. 
-
-Some of the crucial design is shown in the graph below.
-
-### 1. Leader Election
-
-![Page7](src/main/resources/static/Page7.png)
-
-![Page8](src/main/resources/static/Page8.png)
-
-![Page9](src/main/resources/static/Page9.png)
-
-![Page10](src/main/resources/static/Page10.png)
-
-### 2. Log Alignment
-
-![image-20221214073046466](src/main/resources/static/image-20221214073046466.png)
-
-### 3. An Example of How to Apply a Transaction
-
-![Page1](src/main/resources/static/Page1.png)
-
-![Page2](src/main/resources/static/Page2.png)
-
-![Page3](src/main/resources/static/Page3.png)
-
-![Page4](src/main/resources/static/Page4.png)
-
-![image-20221214073154180](src/main/resources/static/image-20221214073154180.png)
-
-
-
 ## Functional & Performance Testing
 
 ### A. Deploy All Locally in Container
@@ -113,6 +79,38 @@ Average network latency: 46.58 ms
 $$
 Average time: 377_{remotely} \div 147_{locally} \approx\ 2.5
 $$
+
+## Designing
+
+We implemented a naive RAFT consensus cluster in this lab. The leader of the cluster serves as the trader. All the members in the cluster maintain the same ledger but in a distributed database held by each one(different database in one CouchDB server). RAFT mechanism guarantees partition consistency and fault tolerance. We implemented all necessary functions including leader election, log synchronization, and service available checking.
+
+Some of the crucial design is shown in the graph below.
+
+### 1. Leader Election
+
+![Page7](src/main/resources/static/Page7.png)
+
+![Page8](src/main/resources/static/Page8.png)
+
+![Page9](src/main/resources/static/Page9.png)
+
+![Page10](src/main/resources/static/Page10.png)
+
+### 2. Log Alignment
+
+![image-20221214073046466](src/main/resources/static/image-20221214073046466.png)
+
+### 3. An Example of How to Apply a Transaction
+
+![Page1](src/main/resources/static/Page1.png)
+
+![Page2](src/main/resources/static/Page2.png)
+
+![Page3](src/main/resources/static/Page3.png)
+
+![Page4](src/main/resources/static/Page4.png)
+
+![image-20221214073154180](src/main/resources/static/image-20221214073154180.png)
 
 ## How to Run
 
